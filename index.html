@@ -284,6 +284,8 @@
     repo        Your GitHub repository ("owner/name"). Download counts and the latest version come from its Releases.
     icon        Picture next to the name (optional). Put it in the images folder.
     screenshot  Big picture under the panel (optional). Leave it out, or leave the file missing, and it's simply hidden.
+    download    (Only for apps NOT published as GitHub Releases.) The direct download link. The panel then shows
+                the version from the repo's version.txt instead of a download count.
     file        Which release file the Download button gets. Anything ending in this, e.g. "Setup" matches
                 "AudioLink-Setup-1.1.3.exe". If no file matches, the button opens the release page instead.
 */
@@ -316,6 +318,24 @@ const APPS = [
       "Readable reports right inside the app",
       "Hardware, drivers, network, security and more",
       "Updates itself when a new version is out",
+    ],
+  },
+  {
+    name: "StreamScan",
+    repo: "AntiLegend93/StreamScan",
+    icon: "images/streamscan-icon.png",
+    screenshot: "images/streamscan-screenshot.png",
+    // Not published as GitHub Releases: the button downloads this file directly, and the panel shows
+    // the version from version.txt instead of a download count.
+    download: "https://github.com/AntiLegend93/streamscan-updates/raw/main/StreamScan-Setup.exe",
+    tagline: "Scan your PC and get the exact settings to stream with on Twitch, YouTube, Kick or Facebook.",
+    features: [
+      "Readiness score with your best resolution, bitrate and encoder",
+      "Settings laid out for OBS, Streamlabs and XSplit",
+      "One-click OBS profile export",
+      "Upload speed and Twitch server tests",
+      "Live Monitor warns you before viewers notice problems",
+      "Only reads your PC, never changes a setting itself",
     ],
   },
 ];
@@ -358,7 +378,7 @@ function panelHtml(app, i) {
           <div class="digits" data-count>${digitsHtml("")}</div>
           <small data-count-label>downloads</small>
         </div>
-        <a class="download" data-download href="${releases}/latest" data-umami-event="Download ${escapeHtml(app.name)}">Download for Windows</a>
+        <a class="download" data-download href="${escapeHtml(app.download || releases + "/latest")}" data-umami-event="Download ${escapeHtml(app.name)}">Download for Windows</a>
         <div class="meta">
           <span data-version>Latest version</span>
           <a href="https://github.com/${app.repo}" target="_blank" rel="noopener">View on GitHub</a>
@@ -393,6 +413,20 @@ async function releaseInfo(app) {
   return info;
 }
 
+/* For apps not published as GitHub Releases: the version from version.txt in the repo. */
+async function versionInfo(app) {
+  const key = "ver:" + app.repo;
+  try {
+    const cached = JSON.parse(localStorage.getItem(key) || "null");
+    if (cached && Date.now() - cached.at < CACHE_MINUTES * 60000) return cached.version;
+  } catch (e) {}
+  const res = await fetch(`https://raw.githubusercontent.com/${app.repo}/HEAD/version.txt`, { cache: "no-store" });
+  if (!res.ok) throw new Error("GitHub said " + res.status);
+  const version = (await res.text()).split(/\r?\n/)[0].trim().replace(/^v\.?/i, "");
+  try { localStorage.setItem(key, JSON.stringify({ at: Date.now(), version })); } catch (e) {}
+  return version;
+}
+
 /* The one bit of motion: counters roll up to their number when the page loads. */
 function rollTo(el, target) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -415,6 +449,20 @@ async function main() {
   let total = 0, known = 0;
   await Promise.all(APPS.map(async (app, i) => {
     const panel = panels[i];
+
+    if (app.download) {
+      try {
+        const version = await versionInfo(app);
+        panel.querySelector("[data-count]").textContent = "v" + version;
+        panel.querySelector("[data-count-label]").textContent = "current version";
+        panel.querySelector("[data-version]").textContent = "Free download";
+      } catch (e) {
+        panel.querySelector("[data-count]").innerHTML = '<span class="off">------</span>';
+        panel.querySelector("[data-count-label]").textContent = "latest version";
+      }
+      return;
+    }
+
     try {
       const info = await releaseInfo(app);
       rollTo(panel.querySelector("[data-count]"), info.downloads);
@@ -431,7 +479,7 @@ async function main() {
 
   if (known > 0) {
     const el = document.getElementById("total");
-    el.textContent = `${total.toLocaleString()} downloads across ${APPS.length} apps so far.`;
+    el.textContent = `${APPS.length} apps, ${total.toLocaleString()} downloads so far.`;
     el.hidden = false;
   }
 }
