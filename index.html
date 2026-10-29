@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AntiLegend · Free apps for your PC and your stream</title>
+<meta name="description" content="Free apps by AntiLegend93: AudioLink, DiagPortal, StreamScan, FrameTune, Glowtape and the ChatSpire Twitch bot.">
+<meta name="theme-color" content="#0c0a1d">
+<link rel="icon" href="images/antilegend-icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Michroma&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<!-- Visitor tracking (Umami): dashboard at https://cloud.umami.is -->
+<script defer src="https://cloud.umami.is/script.js" data-website-id="dd959b6c-3943-4010-b573-590cead3c529"></script>
+
+<style>
+  :root {
+    --bg: #0c0a1d;
+    --bg-2: #120f2a;
+    --card: rgba(22, 18, 48, .72);
+    --line: rgba(160, 140, 255, .14);
+    --line-2: rgba(160, 140, 255, .26);
+    --text: #f4f1ff;
+    --muted: #a59fc9;
+    --dim: #6f6997;
+    --violet: #9146ff;
+    --pink: #ff5ec4;
+    --focus: #ffcf33;
+    --display: "Michroma", "Manrope", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--bg); scroll-behavior: smooth; overflow-x: clip; }
+  body {
+    margin: 0;
+    color: var(--text);
+    font: 500 17px/1.65 "Manrope", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: var(--bg);
+    overflow-x: clip;
+  }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: min(1180px, 100% - 32px); margin-inline: auto; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  /* ---------- Background: honeycomb + colored light from each corner ---------- */
+  .sky { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .sky::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(900px 600px at 88% -8%, rgba(145, 70, 255, .30), transparent 62%),
+      radial-gradient(800px 600px at -10% 28%, rgba(31, 214, 255, .14), transparent 60%),
+      radial-gradient(700px 520px at 70% 108%, rgba(255, 94, 196, .16), transparent 60%),
+      linear-gradient(180deg, #110d2a, #0c0a1d 50%, #0e0b24);
+  }
+  .sky::after {
+    content: ""; position: absolute; inset: -100px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100'%3E%3Cg fill='none' stroke='%23a98bff' stroke-opacity='.09' stroke-width='1'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 56px 100px;
+    -webkit-mask-image: linear-gradient(to bottom left, #000 0%, rgba(0,0,0,.5) 35%, transparent 80%);
+            mask-image: linear-gradient(to bottom left, #000 0%, rgba(0,0,0,.5) 35%, transparent 80%);
+  }
+
+  /* ---------- Top bar ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(12, 10, 29, .72);
+    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 68px; }
+  .brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand svg { width: 38px; height: 38px; flex: none; }
+  .lockup { display: flex; flex-direction: column; line-height: .95; font-family: var(--display); }
+  .lockup .a { font-size: 10px; letter-spacing: 4px; color: #b9b0e6; }
+  .lockup .l { font-size: 15px; letter-spacing: 1.5px; }
+  .nav { display: flex; align-items: center; gap: 6px; }
+  .nav a.link { text-decoration: none; color: var(--muted); font-weight: 700; font-size: 15px; padding: 10px 14px; border-radius: 10px; }
+  .nav a.link:hover { color: var(--text); background: rgba(145, 120, 255, .12); }
+  .btn-donate {
+    text-decoration: none; font-weight: 800; font-size: 15px; color: #fff;
+    padding: 11px 18px; border-radius: 12px;
+    background: linear-gradient(135deg, #ff5ec4, #9146ff);
+    box-shadow: 0 8px 24px rgba(255, 94, 196, .28);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .btn-donate:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(255, 94, 196, .4); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: 80px 0 40px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: 40px; align-items: center; }
+  .eyebrow { display: inline-flex; align-items: center; gap: 10px; font: 700 13px/1 "Manrope", sans-serif; letter-spacing: 3px; text-transform: uppercase; color: #c9b8ff; padding: 9px 14px; border: 1px solid var(--line-2); border-radius: 99px; background: rgba(145, 70, 255, .1); }
+  .eyebrow i { width: 8px; height: 8px; border-radius: 50%; background: #00e0a4; box-shadow: 0 0 10px #00e0a4; }
+  h1 {
+    font-family: var(--display); font-weight: 400;
+    font-size: clamp(34px, 5vw, 62px); line-height: 1.12; letter-spacing: -.5px;
+    margin: 22px 0 0;
+  }
+  h1 .grad { background: linear-gradient(92deg, #1fd6ff, #9146ff 45%, #ff5ec4 80%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .intro { color: var(--muted); font-size: 19px; max-width: 46ch; margin: 22px 0 0; }
+  .stats { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 34px; }
+  .stat { padding: 16px 22px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); min-width: 150px; }
+  .stat b { display: block; font-family: var(--display); font-weight: 400; font-size: 30px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat span { color: var(--muted); font-size: 14px; font-weight: 600; }
+  .stat.big b { background: linear-gradient(92deg, #fff, #c9b8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn-main { text-decoration: none; font-weight: 800; padding: 15px 24px; border-radius: 14px; background: #f4f1ff; color: #120f2a; transition: transform .2s; }
+  .btn-main:hover { transform: translateY(-2px); }
+  .btn-ghost { text-decoration: none; font-weight: 800; padding: 15px 22px; border-radius: 14px; border: 1px solid var(--line-2); color: var(--text); }
+  .btn-ghost:hover { background: rgba(145, 120, 255, .12); }
+
+  /* The big interactive hex: one facet per app */
+  .hub { position: relative; display: grid; place-items: center; }
+  .hub-stage { position: relative; width: min(440px, 100%); aspect-ratio: 1; }
+  .hub-stage::before {
+    content: ""; position: absolute; inset: 6%; border-radius: 50%;
+    background: conic-gradient(from 0deg, #9146ff, #ff5ec4, #ffcf33, #00e0a4, #1fd6ff, #4d7cff, #9146ff);
+    filter: blur(60px); opacity: .32; animation: spin 24s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .hub svg { position: relative; width: 100%; height: 100%; overflow: visible; }
+  .facet { cursor: pointer; transform-box: fill-box; transform-origin: center; transition: transform .35s cubic-bezier(.2, .9, .3, 1.3), filter .35s, opacity .35s; outline: none; }
+  .facet path { stroke: #0c0a1d; stroke-width: 4; stroke-linejoin: round; }
+  .hub.loaded .facet { animation: facetIn .9s cubic-bezier(.2, .9, .3, 1.2) backwards; animation-delay: calc(var(--i) * 90ms); }
+  @keyframes facetIn { from { opacity: 0; transform: translate(calc(var(--dx) * -30px), calc(var(--dy) * -30px)) scale(.6); } }
+  .facet:hover, .facet:focus-visible, .facet.on { transform: translate(calc(var(--dx) * 7px), calc(var(--dy) * 7px)); filter: drop-shadow(0 0 14px var(--c)) brightness(1.12); }
+  .hub.hovering .facet:not(:hover):not(:focus-visible):not(.on) { opacity: .45; }
+  .core { pointer-events: none; }
+  .hub-caption { margin-top: 18px; text-align: center; min-height: 64px; }
+  .hub-caption b { display: block; font-family: var(--display); font-weight: 400; font-size: 18px; letter-spacing: 1px; transition: color .2s; }
+  .hub-caption span { color: var(--muted); font-size: 15px; }
+
+  /* App chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; padding: 18px 0 8px; }
+  .chip { --c: #9146ff; display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-weight: 700; font-size: 15px; padding: 9px 16px 9px 12px; border-radius: 99px; background: var(--card); border: 1px solid var(--line); transition: border-color .2s, transform .2s, box-shadow .2s; }
+  .chip i { width: 10px; height: 10px; border-radius: 3px; transform: rotate(45deg); background: var(--c); box-shadow: 0 0 10px var(--c); }
+  .chip:hover { border-color: var(--c); transform: translateY(-2px); box-shadow: 0 6px 20px color-mix(in srgb, var(--c) 30%, transparent); }
+
+  /* ---------- App cards ---------- */
+  .section-h { display: flex; align-items: end; justify-content: space-between; gap: 20px; flex-wrap: wrap; margin-block: 70px 26px; }
+  .section-h h2 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 3vw, 34px); margin: 0; letter-spacing: .5px; }
+  .section-h p { margin: 0; color: var(--muted); }
+  main { display: grid; gap: 34px; padding-bottom: 40px; }
+
+  .app {
+    --c: #9146ff; --mx: 50%; --my: 0%;
+    position: relative; border-radius: 26px; padding: 1px;
+    background: linear-gradient(140deg, color-mix(in srgb, var(--c) 60%, transparent), rgba(160, 140, 255, .12) 35%, rgba(160, 140, 255, .08) 70%, color-mix(in srgb, var(--c) 35%, transparent));
+    scroll-margin-top: 90px;
+  }
+  .app-in {
+    position: relative; overflow: hidden; border-radius: 25px;
+    background:
+      radial-gradient(600px circle at var(--mx) var(--my), color-mix(in srgb, var(--c) 13%, transparent), transparent 45%),
+      linear-gradient(160deg, rgba(26, 21, 58, .94), rgba(13, 11, 32, .96));
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 36px; padding: 38px;
+  }
+  .app:nth-child(even) .app-in { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+  .app:nth-child(even) .info { order: 2; }
+  .app.no-shot .app-in { grid-template-columns: 1fr !important; }
+  .app-in::after { /* a big faint facet in the corner, in the app's colour */
+    content: ""; position: absolute; width: 260px; height: 260px; right: -70px; top: -80px; pointer-events: none;
+    background: var(--c); opacity: .06;
+    clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+  }
+  .info { position: relative; z-index: 1; display: flex; flex-direction: column; min-width: 0; }
+  .ident { display: flex; gap: 18px; align-items: center; }
+  .icon {
+    width: 70px; height: 70px; flex: none; border-radius: 20px; overflow: hidden;
+    display: grid; place-items: center; background: #0a0819;
+    font-family: var(--display); font-size: 26px; color: var(--c);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 10px 30px color-mix(in srgb, var(--c) 25%, transparent);
+  }
+  .icon img { width: 100%; height: 100%; object-fit: cover; }
+  .kind { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: var(--c); margin-bottom: 4px; }
+  .app h3 { font-family: var(--display); font-weight: 400; font-size: clamp(24px, 2.6vw, 32px); line-height: 1.15; margin: 0; letter-spacing: .5px; }
+  .tagline { color: #d7d2f2; font-size: 18px; margin: 20px 0 0; max-width: 50ch; }
+  .features { list-style: none; padding: 0; margin: 22px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 24px; }
+  .features li { position: relative; padding-left: 22px; font-size: 15px; color: #cbc5ea; line-height: 1.5; }
+  .features li::before { content: ""; position: absolute; left: 2px; top: .5em; width: 8px; height: 8px; transform: rotate(45deg); border-radius: 2px; background: var(--c); box-shadow: 0 0 8px var(--c); }
+
+  .dock { margin-top: auto; padding-top: 28px; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 14px 18px; align-items: center; }
+  .counter { padding: 12px 18px; border-radius: 16px; background: #07061a; border: 1px solid rgba(255,255,255,.06); box-shadow: inset 0 2px 10px rgba(0,0,0,.7); }
+  .digits { font-family: var(--display); font-size: 30px; line-height: 1; letter-spacing: 3px; font-variant-numeric: tabular-nums; color: var(--c); text-shadow: 0 0 14px color-mix(in srgb, var(--c) 55%, transparent); white-space: nowrap; }
+  .digits .off { color: color-mix(in srgb, var(--c) 14%, #0a0819); text-shadow: none; }
+  .counter small { display: block; margin-top: 6px; font-size: 12px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim); }
+  .counter.web .digits { font-size: 18px; letter-spacing: 1px; }
+  .download {
+    display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none;
+    font-weight: 800; font-size: 16px; color: #0b0920; padding: 17px 22px; border-radius: 16px;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c));
+    box-shadow: 0 10px 28px color-mix(in srgb, var(--c) 35%, transparent), inset 0 1px 0 rgba(255,255,255,.4);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .download svg { width: 18px; height: 18px; }
+  .download:hover { transform: translateY(-2px); box-shadow: 0 16px 36px color-mix(in srgb, var(--c) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.4); }
+  .meta { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 12px; font-size: 14px; color: var(--muted); }
+  .meta a { text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 4px; }
+  .meta a:hover { color: var(--text); text-decoration-color: var(--c); }
+  .ver { display: inline-flex; align-items: center; gap: 8px; }
+  .ver::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #00e0a4; box-shadow: 0 0 8px #00e0a4; }
+
+  /* Screenshot in a little app window */
+  .shot { position: relative; z-index: 1; margin: 0; align-self: center; perspective: 1400px; }
+  .window {
+    border-radius: 16px; overflow: hidden; background: #0a0819;
+    border: 1px solid color-mix(in srgb, var(--c) 35%, rgba(255,255,255,.08));
+    box-shadow: 0 30px 70px rgba(0,0,0,.55), 0 0 60px color-mix(in srgb, var(--c) 16%, transparent);
+    transform: rotateY(-7deg) rotateX(3deg); transition: transform .6s cubic-bezier(.2, .9, .3, 1);
+  }
+  .app:nth-child(even) .window { transform: rotateY(7deg) rotateX(3deg); }
+  .app:hover .window { transform: none; }
+  .bar { display: flex; gap: 7px; padding: 11px 14px; background: rgba(255,255,255,.04); border-bottom: 1px solid rgba(255,255,255,.06); }
+  .bar i { width: 11px; height: 11px; border-radius: 50%; background: #2a2550; }
+  .bar i:first-child { background: var(--c); }
+  .window img { display: block; width: 100%; height: auto; }
+
+  /* Reveal as you scroll */
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s cubic-bezier(.2, .9, .3, 1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* ---------- Footer ---------- */
+  footer { margin-top: 60px; border-top: 1px solid var(--line); background: rgba(8, 7, 22, .6); }
+  footer .wrap { padding: 56px 0 64px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 30px; align-items: center; }
+  .foot-brand { display: flex; align-items: center; gap: 18px; }
+  .foot-brand svg { width: 76px; height: 76px; }
+  .foot-brand .lockup .a { font-size: 16px; letter-spacing: 7px; }
+  .foot-brand .lockup .l { font-size: 26px; letter-spacing: 2px; }
+  footer p { color: var(--muted); margin: 16px 0 0; max-width: 52ch; }
+  .donate-card { padding: 26px; border-radius: 22px; background: linear-gradient(150deg, rgba(255, 94, 196, .14), rgba(145, 70, 255, .1)); border: 1px solid rgba(255, 94, 196, .3); text-align: center; }
+  .donate-card b { display: block; font-family: var(--display); font-weight: 400; font-size: 16px; margin-bottom: 14px; letter-spacing: .5px; }
+  .donate-card .btn-donate { display: inline-block; padding: 14px 24px; }
+  .copy { margin-top: 26px; font-size: 13px; color: var(--dim); }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding-top: 48px; text-align: left; }
+    .hub { order: -1; }
+    .hub-stage { width: min(320px, 80vw); }
+    .app-in, .app:nth-child(even) .app-in { grid-template-columns: 1fr; padding: 26px 22px; gap: 26px; }
+    .app:nth-child(even) .info { order: 0; }
+    .window, .app:nth-child(even) .window { transform: none; }
+    footer .wrap { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 600px) {
+    .nav a.link { display: none; }
+    .lockup .l { font-size: 13px; }
+    .features { grid-template-columns: 1fr; }
+    .dock { grid-template-columns: 1fr; }
+    .stat { flex: 1; min-width: 0; }
+    .icon { width: 58px; height: 58px; border-radius: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+
+<!-- The logo mark, drawn once and reused -->
+<svg width="0" height="0" class="sr" aria-hidden="true">
+  <symbol id="mark" viewBox="0 0 200 200">
+    <g stroke="#0c0a1d" stroke-width="5" stroke-linejoin="round">
+      <path d="M100.0 8.0 L179.7 54.0 L138.1 78.0 L100.0 56.0 Z" fill="#9146ff"/>
+      <path d="M179.7 54.0 L179.7 146.0 L138.1 122.0 L138.1 78.0 Z" fill="#ff5ec4"/>
+      <path d="M179.7 146.0 L100.0 192.0 L100.0 144.0 L138.1 122.0 Z" fill="#ffcf33"/>
+      <path d="M100.0 192.0 L20.3 146.0 L61.9 122.0 L100.0 144.0 Z" fill="#00e0a4"/>
+      <path d="M20.3 146.0 L20.3 54.0 L61.9 78.0 L61.9 122.0 Z" fill="#1fd6ff"/>
+      <path d="M20.3 54.0 L100.0 8.0 L100.0 56.0 L61.9 78.0 Z" fill="#4d7cff"/>
+    </g>
+    <polygon points="100.0,56.0 138.1,78.0 138.1,122.0 100.0,144.0 61.9,122.0 61.9,78.0" fill="#171334"/>
+    <path d="M100 74 L124 126 H111 L100 100 L89 126 H76 Z" fill="#f4f1ff"/>
+    <rect x="94" y="110" width="12" height="5" rx="1.5" fill="#ff5ec4"/>
+  </symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#" aria-label="AntiLegend, back to top">
+      <svg aria-hidden="true"><use href="#mark"/></svg>
+      <span class="lockup"><span class="a">ANTI</span><span class="l">LEGEND</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a class="link" href="#apps">Apps</a>
+      <a class="link" href="#support">Support</a>
+      <a class="btn-donate" href="https://venmo.com/code?user_id=3587678062773330218&created=1791519560" target="_blank" rel="noopener" data-umami-event="Donate">♥ Donate</a>
+    </nav>
+  </div>
+</header>
+
+<section class="wrap hero">
+  <div>
+    <span class="eyebrow"><i></i>Free · No ads · No accounts</span>
+    <h1>Tools for your <span class="grad">PC</span> and your <span class="grad">stream</span>.</h1>
+    <p class="intro">Small, focused apps I build and give away. Better sound, faster games, a clearer look at your PC, and a Twitch bot for your chat. Download, run, done.</p>
+    <div class="stats">
+      <div class="stat big"><b id="total-num">—</b><span>total downloads</span></div>
+      <div class="stat"><b id="app-num">6</b><span>free apps</span></div>
+    </div>
+    <div class="hero-cta">
+      <a class="btn-main" href="#apps">Browse the apps</a>
+      <a class="btn-ghost" href="https://github.com/AntiLegend93" target="_blank" rel="noopener">GitHub ↗</a>
+    </div>
+  </div>
+
+  <div class="hub" id="hub">
+    <div class="hub-stage">
+      <svg viewBox="-12 -12 224 224" role="group" aria-label="The AntiLegend hex: each piece is one app" id="hub-svg"></svg>
+    </div>
+    <div class="hub-caption" aria-live="polite"><b id="cap-name">Pick a piece of the hex</b><span id="cap-text">Each colour is one app.</span></div>
+  </div>
+</section>
+
+<nav class="wrap chips" id="chips" aria-label="Jump to an app"></nav>
+
+<div class="wrap section-h" id="apps-h">
+  <h2>The apps</h2>
+  <p>Windows apps update themselves once installed.</p>
+</div>
+<main class="wrap" id="apps"></main>
+
+<footer id="support">
+  <div class="wrap">
+    <div>
+      <div class="foot-brand">
+        <svg aria-hidden="true"><use href="#mark"/></svg>
+        <span class="lockup"><span class="a">ANTI</span><span class="l">LEGEND</span></span>
+      </div>
+      <p>Everything here is free. If an app saved you some hassle, a donation keeps new ones coming.</p>
+      <div class="copy">Made by AntiLegend93 · Download counts come live from GitHub.</div>
+    </div>
+    <div class="donate-card">
+      <b>Keep the apps coming</b>
+      <a class="btn-donate" href="https://venmo.com/code?user_id=3587678062773330218&created=1791519560" target="_blank" rel="noopener" data-umami-event="Donate">♥ Donate with Venmo</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/*
+  YOUR APPS: edit this list to add, remove or change apps. Each one becomes a card on the page.
+    repo        Your GitHub repository ("owner/name"). Download counts and the latest version come from its Releases.
+                Leave it out for an app that isn't a download (like ChatSpire): set "link" and "button" instead.
+    color       The app's colour (matches its piece of the hex logo).
+    facet       Which piece of the hex is this app: 0 top-right, 1 right, 2 bottom-right, 3 bottom-left, 4 left, 5 top-left.
+    kind        The small label above the name.
+    icon        Picture next to the name (optional). Put it in the images folder.
+    screenshot  Big picture beside the info (optional). Leave it out, or leave the file missing, and the card goes full width.
+    download    (Optional) Where the button goes if the repo has no release file yet.
+                Download counts only start once the installer is attached to a GitHub Release.
+    file        Which release file the Download button gets. Anything ending in this, e.g. "Setup" matches
+                "AudioLink-Setup-1.1.3.exe". If no file matches, the button opens the release page instead.
+*/
+const APPS = [
+  {
+    name: "AudioLink", kind: "Sound", color: "#1fd6ff", facet: 4,
+    repo: "AntiLegend93/AudioLink",
+    icon: "images/audiolink-icon.png",
+    screenshot: "images/audiolink-screenshot.png",
+    file: "Setup",
+    tagline: "Play your PC's sound through all your speakers and monitors at once, perfectly in sync.",
+    features: [
+      "Speakers, monitor speakers, headphones and Bluetooth, all at once",
+      "Perfect Sync lines every device up so nothing echoes",
+      "A real mixer: volume, meters, delay, bass and treble per device",
+      "Choose which app plays on which device",
+      "Profiles for movies, gaming or headphones",
+      "Runs in the tray and keeps itself up to date",
+    ],
+  },
+  {
+    name: "DiagPortal", kind: "PC health", color: "#4d7cff", facet: 5,
+    repo: "AntiLegend93/diagportal-updates",
+    icon: "images/diagportal-icon.png",
+    screenshot: "images/diagportal-screenshot.png",
+    file: ".exe",
+    tagline: "Check your whole PC in one click and read the results in clear, dark-mode reports.",
+    features: [
+      "85 system checks run in one go",
+      "Readable reports right inside the app",
+      "Hardware, drivers, network, security and more",
+      "Updates itself when a new version is out",
+    ],
+  },
+  {
+    name: "StreamScan", kind: "Streaming setup", color: "#ffcf33", facet: 2,
+    repo: "AntiLegend93/StreamScan",
+    icon: "images/streamscan-icon.png",
+    screenshot: "images/streamscan-screenshot.png",
+    file: "Setup",
+    tagline: "Scan your PC and get the exact settings to stream with on Twitch, YouTube, Kick or Facebook.",
+    features: [
+      "Readiness score with your best resolution, bitrate and encoder",
+      "Settings laid out for OBS, Streamlabs and XSplit",
+      "One-click OBS profile export",
+      "Upload speed and Twitch server tests",
+      "Live Monitor warns you before viewers notice problems",
+      "Only reads your PC, never changes a setting itself",
+    ],
+  },
+  {
+    name: "FrameTune", kind: "NVIDIA graphics", color: "#00e0a4", facet: 3,
+    repo: "AntiLegend93/FrameTune",
+    icon: "images/frametune-icon.png",
+    screenshot: "images/frametune-screenshot.png",
+    file: "Setup",
+    tagline: "Finds the best settings for your NVIDIA graphics card and applies them in one click.",
+    features: [
+      "Detects your card automatically, from GTX 400 to RTX 50, desktop or laptop",
+      "Pick Max FPS, Balanced or Max Quality, with one-click Optimize and Undo",
+      "Fixes washed-out colours, wrong resolution and slow monitor cables",
+      "Stutter check: RAM speed, hard drives, overlays and background apps",
+      "Game booster pauses background apps while you play",
+      "Spots your games and suggests settings the first time you play",
+    ],
+  },
+  {
+    name: "Glowtape", kind: "Music & video", color: "#ff5ec4", facet: 1,
+    repo: "AntiLegend93/Glowtape",
+    icon: "images/glowtape-icon.png",
+    screenshot: "images/glowtape-screenshot.png",
+    file: "Setup",
+    tagline: "A neon music and video player that plays any format, with a library, playlists and web imports.",
+    features: [
+      "Plays every audio format, from MP3 and FLAC to OGG, Opus, APE and DSD",
+      "Plays videos too, with subtitles, full screen and continue watching",
+      "Library, playlists, liked songs and instant search",
+      "Import music or videos from YouTube, SoundCloud and Bandcamp",
+      "10-band equalizer, crossfade, gapless playback and synced lyrics",
+      "Mini player, media keys, and keeps playing in the tray",
+    ],
+  },
+  {
+    name: "ChatSpire", kind: "Twitch bot", color: "#9146ff", facet: 0,
+    link: "https://chatspire.app", button: "Add it to your Twitch channel", web: "Free · nothing to install",
+    icon: "images/chatspire-icon.svg",
+    screenshot: "images/chatspire-screenshot.png",
+    tagline: "A friendly chat bot for your Twitch stream. Log in with Twitch and it joins your chat in a minute.",
+    features: [
+      "Your own commands, timers and thank-you alerts",
+      "Overlays for OBS: chat, alerts, goal bar, counters, now playing",
+      "Loyalty points with duels, heists, trivia and predictions",
+      "Giveaways, song requests on Spotify and Discord go-live posts",
+      "Spam filters, shield mode and unban requests",
+      "Stream recaps and analytics, by day, week, month or year",
+    ],
+  },
+];
+
+const CACHE_MINUTES = 30; // GitHub allows about 60 lookups an hour per visitor, so counts are remembered briefly
+const DIRS = [[.5, -.866], [1, 0], [.5, .866], [-.5, .866], [-1, 0], [-.5, -.866]]; // which way each hex piece points
+const FACETS = [
+  "M100.0 8.0 L179.7 54.0 L138.1 78.0 L100.0 56.0 Z",
+  "M179.7 54.0 L179.7 146.0 L138.1 122.0 L138.1 78.0 Z",
+  "M179.7 146.0 L100.0 192.0 L100.0 144.0 L138.1 122.0 Z",
+  "M100.0 192.0 L20.3 146.0 L61.9 122.0 L100.0 144.0 Z",
+  "M20.3 146.0 L20.3 54.0 L61.9 78.0 L61.9 122.0 Z",
+  "M20.3 54.0 L100.0 8.0 L100.0 56.0 L61.9 78.0 Z",
+];
+
+const escapeHtml = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const slug = name => "app-" + name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+const counts = {}; // app name -> downloads, for the hex caption
+
+function digitsHtml(n, width = 6) {
+  const text = String(n);
+  const pad = Math.max(0, width - text.length);
+  return `<span class="off">${"0".repeat(pad)}</span>${text}`;
+}
+
+const DL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>';
+const GO_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+
+function cardHtml(app, i) {
+  const initial = escapeHtml(app.name[0]);
+  const icon = app.icon
+    ? `<img src="${escapeHtml(app.icon)}" alt="" onerror="this.replaceWith(document.createTextNode('${initial}'))">`
+    : initial;
+  const shot = app.screenshot
+    ? `<figure class="shot"><div class="window"><div class="bar" aria-hidden="true"><i></i><i></i><i></i></div><img src="${escapeHtml(app.screenshot)}" alt="${escapeHtml(app.name)} screenshot" loading="lazy" onerror="var a=this.closest('.app');this.closest('figure').remove();a.classList.add('no-shot')"></div></figure>`
+    : "";
+  const isWeb = !app.repo;
+  const releases = isWeb ? "" : `https://github.com/${app.repo}/releases`;
+  const counter = isWeb
+    ? `<div class="counter web"><div class="digits">${escapeHtml(app.kind)}</div><small>${escapeHtml(app.web || "Web app")}</small></div>`
+    : `<div class="counter" aria-live="polite"><div class="digits" data-count>${digitsHtml("")}</div><small data-count-label>downloads</small></div>`;
+  const button = isWeb
+    ? `<a class="download" href="${escapeHtml(app.link)}" target="_blank" rel="noopener" data-umami-event="Open ${escapeHtml(app.name)}">${escapeHtml(app.button || "Open")} ${GO_ICON}</a>`
+    : `<a class="download" data-download href="${escapeHtml(app.download || releases + "/latest")}" data-umami-event="Download ${escapeHtml(app.name)}">${DL_ICON} Download for Windows</a>`;
+  const meta = isWeb
+    ? `<div class="meta"><span class="ver">Always up to date</span><a href="${escapeHtml(app.link)}" target="_blank" rel="noopener">${escapeHtml(app.link.replace(/^https?:\/\//, ""))}</a></div>`
+    : `<div class="meta"><span class="ver" data-version>Latest version</span><a href="https://github.com/${app.repo}" target="_blank" rel="noopener">View on GitHub</a></div>`;
+  return `
+  <article class="app reveal${shot ? "" : " no-shot"}" id="${slug(app.name)}" style="--c:${escapeHtml(app.color)}" aria-labelledby="${slug(app.name)}-h">
+    <div class="app-in">
+      <div class="info">
+        <div class="ident">
+          <div class="icon">${icon}</div>
+          <div><span class="kind">${escapeHtml(app.kind || "")}</span><h3 id="${slug(app.name)}-h">${escapeHtml(app.name)}</h3></div>
+        </div>
+        <p class="tagline">${escapeHtml(app.tagline)}</p>
+        <ul class="features">${app.features.map(f => `<li>${escapeHtml(f)}</li>`).join("")}</ul>
+        <div class="dock">${counter}${button}${meta}</div>
+      </div>
+      ${shot}
+    </div>
+  </article>`;
+}
+
+/* The big hex in the header: each piece links to its app's card. */
+function buildHub() {
+  const svg = document.getElementById("hub-svg");
+  const byFacet = {};
+  APPS.forEach(a => { if (a.facet != null) byFacet[a.facet] = a; });
+  const pieces = FACETS.map((d, i) => {
+    const app = byFacet[i];
+    const color = app ? app.color : "#2a2550";
+    const [dx, dy] = DIRS[i];
+    return app
+      ? `<a class="facet" href="#${slug(app.name)}" data-app="${escapeHtml(app.name)}" aria-label="${escapeHtml(app.name)}: ${escapeHtml(app.kind)}" style="--i:${i};--dx:${dx};--dy:${dy};--c:${color}"><path d="${d}" fill="${color}"/></a>`
+      : `<g class="facet" style="--i:${i};--dx:${dx};--dy:${dy};--c:${color}"><path d="${d}" fill="${color}"/></g>`;
+  }).join("");
+  svg.innerHTML = `${pieces}
+    <g class="core"><polygon points="100.0,56.0 138.1,78.0 138.1,122.0 100.0,144.0 61.9,122.0 61.9,78.0" fill="#171334"/>
+    <path d="M100 74 L124 126 H111 L100 100 L89 126 H76 Z" fill="#f4f1ff"/>
+    <rect x="94" y="110" width="12" height="5" rx="1.5" fill="#ff5ec4"/></g>`;
+
+  const hub = document.getElementById("hub"), name = document.getElementById("cap-name"), text = document.getElementById("cap-text");
+  const show = (app) => {
+    if (!app) { hub.classList.remove("hovering"); name.textContent = "Pick a piece of the hex"; name.style.color = ""; text.textContent = "Each colour is one app."; return; }
+    hub.classList.add("hovering");
+    name.textContent = app.name; name.style.color = app.color;
+    const n = counts[app.name];
+    text.textContent = app.kind + (app.repo ? (n != null ? ` · ${n.toLocaleString()} downloads` : "") : " · free");
+  };
+  svg.querySelectorAll("a.facet").forEach(el => {
+    const app = APPS.find(a => a.name === el.dataset.app);
+    el.addEventListener("mouseenter", () => show(app));
+    el.addEventListener("focus", () => show(app));
+    el.addEventListener("mouseleave", () => show(null));
+    el.addEventListener("blur", () => show(null));
+  });
+  requestAnimationFrame(() => hub.classList.add("loaded"));
+}
+
+/* Download totals and the newest version, from GitHub's public Releases API. */
+async function releaseInfo(app) {
+  const key = "rel:" + app.repo;
+  try {
+    const cached = JSON.parse(localStorage.getItem(key) || "null");
+    if (cached && Date.now() - cached.at < CACHE_MINUTES * 60000) return cached.info;
+  } catch (e) { /* no storage: just ask GitHub */ }
+
+  const res = await fetch(`https://api.github.com/repos/${app.repo}/releases?per_page=100`);
+  if (!res.ok) throw new Error("GitHub said " + res.status);
+  const releases = (await res.json()).filter(r => !r.draft);
+  const downloads = releases.reduce((sum, r) => sum + r.assets.reduce((s, a) => s + a.download_count, 0), 0);
+  const latest = releases.find(r => !r.prerelease) || releases[0];
+  const wanted = String(app.file || ".exe").toLowerCase();
+  const asset = latest && (latest.assets.find(a => a.name.toLowerCase().includes(wanted))
+                       || latest.assets.find(a => a.name.toLowerCase().endsWith(".exe")));
+  const info = {
+    downloads,
+    version: latest ? latest.tag_name : null,
+    url: asset ? asset.browser_download_url : null,
+  };
+  // Only remember real results, so a release published a moment ago shows up straight away.
+  if (releases.length > 0) {
+    try { localStorage.setItem(key, JSON.stringify({ at: Date.now(), info })); } catch (e) {}
+  }
+  return info;
+}
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* Counters roll up to their number. */
+function rollTo(el, target, format = digitsHtml, duration = 1400) {
+  if (reduceMotion || target === 0) { el.innerHTML = format(target); return; }
+  const start = performance.now();
+  const step = now => {
+    const t = Math.min(1, (now - start) / duration);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.innerHTML = format(Math.round(target * eased));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+/* Cards fade up as they scroll into view; their counters roll when they appear. */
+function watchReveals() {
+  const els = [...document.querySelectorAll(".reveal")];
+  if (reduceMotion || !("IntersectionObserver" in window)) { els.forEach(e => e.classList.add("in")); return; }
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      e.target.classList.add("in");
+      const c = e.target.querySelector("[data-count]");
+      if (c && c.dataset.target != null && !c.dataset.rolled) { c.dataset.rolled = "1"; rollTo(c, Number(c.dataset.target)); }
+      io.unobserve(e.target);
+    });
+  }, { threshold: .15 });
+  els.forEach(e => io.observe(e));
+}
+
+/* A soft light that follows the mouse across each card. */
+function cardGlow() {
+  document.querySelectorAll(".app").forEach(card => {
+    card.addEventListener("pointermove", e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+      card.style.setProperty("--my", `${e.clientY - r.top}px`);
+    });
+  });
+}
+
+async function main() {
+  document.getElementById("app-num").textContent = APPS.length;
+  document.getElementById("chips").innerHTML = APPS.map(a =>
+    `<a class="chip" href="#${slug(a.name)}" style="--c:${escapeHtml(a.color)}"><i></i>${escapeHtml(a.name)}</a>`).join("");
+  const list = document.getElementById("apps");
+  list.innerHTML = APPS.map(cardHtml).join("");
+  buildHub();
+  watchReveals();
+  cardGlow();
+
+  let total = 0, known = 0;
+  await Promise.all(APPS.map(async app => {
+    if (!app.repo) return;
+    const card = document.getElementById(slug(app.name));
+    try {
+      const info = await releaseInfo(app);
+      counts[app.name] = info.downloads;
+      const c = card.querySelector("[data-count]");
+      c.dataset.target = info.downloads;
+      // Already on screen? Roll now. Otherwise it rolls when it scrolls into view.
+      if (card.classList.contains("in") || reduceMotion) { c.dataset.rolled = "1"; rollTo(c, info.downloads); }
+      card.querySelector("[data-count-label]").textContent = info.downloads === 1 ? "download" : "downloads";
+      if (info.version) card.querySelector("[data-version]").textContent = "Version " + info.version.replace(/^v/i, "");
+      else card.querySelector("[data-version]").textContent = "Free download";
+      if (info.url) card.querySelector("[data-download]").href = info.url;
+      total += info.downloads;
+      known++;
+    } catch (e) {
+      card.querySelector("[data-count]").innerHTML = '<span class="off">------</span>';
+      card.querySelector("[data-count-label]").textContent = "count unavailable right now";
+    }
+  }));
+
+  if (known > 0) rollTo(document.getElementById("total-num"), total, n => n.toLocaleString(), 1800);
+  else document.getElementById("total-num").textContent = "Free";
+}
+
+main();
+</script>
+</body>
+</html>
